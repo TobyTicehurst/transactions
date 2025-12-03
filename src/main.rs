@@ -1,9 +1,15 @@
 use anyhow::{Result, anyhow};
-use csv::Error;
 use serde::Deserialize;
 use std::fs::File;
 use std::io::BufReader;
-use std::io::prelude::*;
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    csv_filepath: String,
+}
+
 
 #[derive(Debug, Deserialize)]
 struct Transaction {
@@ -29,7 +35,9 @@ fn read_transactions_from_csv_file(filepath: &str) -> Result<Vec<Transaction>> {
 }
 
 fn main() {
-    let transactions = read_transactions_from_csv_file("tests/test_data.csv").unwrap();
+    let cli = Cli::parse();
+
+    let transactions = read_transactions_from_csv_file(cli.csv_filepath.as_str()).unwrap();
     for transaction in transactions {
         // error here.
         println!("{:?}", transaction);
