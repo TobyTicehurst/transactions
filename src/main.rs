@@ -17,6 +17,9 @@ fn main() {
     // read transactions from csv file
     let unprocessed_transactions = read_transactions_from_csv_file(csv_filepath.as_str()).unwrap();
 
+    use std::time::Instant;
+    let now = Instant::now();
+
     for transaction in unprocessed_transactions {
         let client_id = transaction.metadata.client_id as usize;
 
@@ -36,6 +39,9 @@ fn main() {
     for client in clients.iter_mut().flatten() {
         client.calculate_funds().unwrap();
     }
+
+    let elapsed = now.elapsed();
+    eprintln!("Elapsed: {:.2?}", elapsed);
 
     write_clients_to_stdout(&clients).unwrap();
 }

@@ -1,4 +1,36 @@
-# Initial thoughts
+# How to run this code
+
+`cargo run -- <input-filepath> > <output-filepath>`
+
+Tests can act as examples of input and output, see tests/
+
+# Code behaviour
+
+The code initially reads from the input csv and at the end writes to the output csv but the meat of the program is parsing the transactions. Since this code is designed to work in an async way, transactions can't be immediately processed as each transaction relies on the previous transactions. For example, a "Chargeback" transaction prevents any further transactions from being processed. Transactions will first be categorised, sent to the required client and added to a list for later processing. At a later "sync" point, these lists of transactions will be processed in chronological order. Disputes, Resolves and Chargebacks are handled first, then Deposits and Withdrawals. The following behaviour occurs for each transaction type during that later pr:
+
+Dispute - if client is not locked, look for a Deposit or Withdrawal with the same id. If found look for a Resolve or Chargeback with the same id. If a Deposit or Withdrawal is not found, move on (could remove the Dispute at this point). If a Resolve or Chargeback is found, process it now. If a Resolve or Chargeback is not found, mark the Deposit or Withdrawal as disputed. A disputed deposit removes the amount from available funds and adds it to held funds. A disputed Withdrawal adds the amount to held funds. A disputed deposit is allowed to make available funds negative.
+Resolve - Remove both the Dispute and Resolve. Mark the transaction (Deposit or Withdrawal) as undisputed.
+Chargeback - Remove the Dispute and Chargeback, and the transaction (Deposit or Withdrawal). Mark the client as locked and specify the chronology it was locked at
+Deposit - if client is not locked, client's available funds increases by given amount
+Withdrawal - if client is not locked, and if the withdrawal won't reduce available funds below 0, client's available funds decreases by given amount
+
+# Chronology and transaction ordering
+
+The problem statement described the need for transactions to be ordered but didn't specify a way to order them. Transaction id wouldn't be appropriate due to the possibility of re-ordering the csv file. I use chronology (think timestamp) to order all transactions. Given that in the future chronology could be represented as a timestamp (rather than a unique u64 as it currently is), chronology isn't necessarily unique. To preserve a unique and deterministic ordering, I use transaction id to order transactions with the same chronology, since the problem statement stated that transaction ids are unique.
+
+# Current performance
+
+Running: `python tests/performance_test.py`
+
+Gives: Elapsed: 955.23ms
+
+This tests 10 million random deposits and withdrawals and doesn't check for correctness. I am assuming that Disputes, Resolves and Chargebacks are rare.
+
+# Thoughts on how to improve the code
+
+- async - current the code is single threaded but build to be async. I would use a Hashmap of Clients where the Hashmap was protected by a RwLock and each Client was protected with a standard Mutex. 
+
+# Initial thoughts (braindump)
 
 Potential for multiple input sources
 
