@@ -16,7 +16,6 @@ fn main() {
 
     // read transactions from csv file
     let unprocessed_transactions = read_transactions_from_csv_file(csv_filepath.as_str()).unwrap();
-    //let processed_transactions = vec![];
 
     for transaction in unprocessed_transactions {
         let client_id = transaction.metadata.client_id as usize;
@@ -27,7 +26,7 @@ fn main() {
         }
 
         if let Some(client) = clients.get_mut(client_id) {
-            let client = client.get_or_insert_default();
+            let client = client.get_or_insert(Client::new(client_id as u64));
             client.handle_transaction(transaction).unwrap();
         } else {
             // unreachable error

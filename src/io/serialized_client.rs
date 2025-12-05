@@ -32,7 +32,7 @@ where
 impl From<Client> for CsvClient {
     fn from(client: Client) -> Self {
         Self {
-            client_id: 0,
+            client_id: client.id(),
             available_funds: client.available_funds(),
             held_funds: client.held_funds(),
             total_funds: client.total_funds(),

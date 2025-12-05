@@ -18,6 +18,7 @@ pub struct ClientState {
 
 #[derive(Default, Debug, Clone)]
 pub struct Client {
+    id: u64,
     state: ClientState,
     // what chronology was the account locked at
     locked: Option<u64>,
@@ -29,6 +30,13 @@ pub struct Client {
 }
 
 impl Client {
+    pub fn new(id: u64) -> Self {
+        Self {
+            id,
+            ..Self::default()
+        }
+    }
+
     pub fn handle_transaction(&mut self, transaction: UnprocessedTransaction) -> Result<()> {
         // TODO combine id and chronology and implement Ord, Cmp
         let id = transaction.metadata.transaction_id;
@@ -209,5 +217,9 @@ impl Client {
 
     pub fn is_locked(&self) -> bool {
         self.state.locked
+    }
+
+    pub fn id(&self) -> u64 {
+        self.id
     }
 }
