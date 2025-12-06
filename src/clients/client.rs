@@ -37,7 +37,7 @@ impl Client {
         }
     }
 
-    pub fn handle_transaction(&mut self, transaction: UnprocessedTransaction) -> Result<()> {
+    pub fn handle_transaction(&mut self, transaction: &UnprocessedTransaction) -> Result<()> {
         // TODO combine id and chronology and implement Ord, Cmp
         let id = transaction.metadata.transaction_id;
         let chronology = transaction.metadata.chronology;
@@ -50,9 +50,9 @@ impl Client {
             return Ok(());
         }
 
-        match transaction.transaction_type {
-            UpdateFunds(amount) => self.handle_update_funds(id, chronology, amount),
-            Claim(claim_type) => self.handle_claim(id, chronology, claim_type),
+        match &transaction.transaction_type {
+            UpdateFunds(amount) => self.handle_update_funds(id, chronology, *amount),
+            Claim(claim_type) => self.handle_claim(id, chronology, *claim_type),
         };
 
         Ok(())

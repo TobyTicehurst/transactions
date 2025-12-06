@@ -24,7 +24,7 @@ def main():
     Path(test_dir).mkdir(exist_ok=True)
 
     input_filepath = test_dir + "sample_large.csv"
-    generate_csv(input_filepath, 10_000_000)
+    #generate_csv(input_filepath, 10_000_000)
     subprocess.check_output(['cargo', 'run', '--release', '--', input_filepath])
 
 if __name__ == "__main__":

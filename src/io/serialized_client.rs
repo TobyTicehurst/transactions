@@ -5,6 +5,7 @@ use csv::Writer;
 use serde::{Serialize, Serializer};
 use std::io;
 use std::io::BufWriter;
+use std::sync::Mutex;
 
 #[derive(Debug, Serialize)]
 struct CsvClient {
@@ -41,10 +42,10 @@ impl From<Client> for CsvClient {
     }
 }
 
-pub fn write_clients_to_stdout(clients: &[Option<Client>]) -> Result<()> {
+pub fn write_clients_to_stdout(clients: &[Client]) -> Result<()> {
     let buf_writer = BufWriter::new(io::stdout());
     let mut writer = Writer::from_writer(buf_writer);
-    for client in clients.iter().flatten() {
+    for client in clients.iter() {
         let csv_client: CsvClient = client.clone().into();
         writer.serialize(csv_client)?;
     }

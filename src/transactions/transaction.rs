@@ -67,7 +67,7 @@ pub struct TransactionMetadata {
     pub chronology: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ClaimType {
     Dispute,
     Resolve,
